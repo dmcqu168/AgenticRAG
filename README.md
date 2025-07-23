@@ -1,14 +1,48 @@
-# Agentic RAG Mobile Application
+# Construction Fire Safety Assistant
 
-A mobile application that implements an agentic Retrieval-Augmented Generation (RAG) system using React Native and FastAPI.
+An agentic RAG application designed to help construction fire safety managers maintain compliance and safety on construction sites. This intelligent assistant combines Retrieval-Augmented Generation (RAG) with AI agents using the ReAct method to provide expert fire safety guidance.
 
-## Features
+## 🚀 Core Purpose
 
-- **Mobile-First Design**: Built with React Native for cross-platform compatibility (iOS/Android)
-- **Agentic RAG Backend**: FastAPI server with ChromaDB for vector storage
-- **Document Processing**: Handles various document types with text extraction
-- **Semantic Search**: Advanced search capabilities using vector embeddings
-- **Self-Improving**: Implements the ReAct method for agent self-improvement
+The app helps construction managers ensure fire safety compliance by:
+- Retrieving information from a comprehensive database of fire safety documents
+- Generating intelligent responses using AI with construction fire safety expertise
+- Providing real-time access to critical safety information on construction sites
+
+## 🔑 Key Capabilities
+
+### 📋 Compliance Management
+- Code lookup for NYC Fire Code and OSHA fire safety regulations
+- Daily safety checklists with compliance tracking
+- Fire safety inspection reports and audits
+
+### 🤖 AI-Powered Assistance
+- Q&A functionality for fire safety code questions
+- Photo upload with AI feedback and code references
+- Expert-level guidance on construction fire safety compliance
+
+### 🛠️ Technical Features
+- **Semantic Search**: Advanced search across NYC Fire Code and OSHA regulations
+- **Document Intelligence**: analysis of safety documents with specialized agents
+- **Vector Database**: ChromaDB for efficient document retrieval
+- **Cross-Platform**: React Native app for iOS and Android
+
+## 🏗️ Technical Architecture
+
+### Retrieval System
+- ChromaDB vector database for document storage
+- Semantic search with metadata preservation
+- Document chunking for efficient retrieval
+
+### AI Generation
+- AI service with fire safety expertise prompts
+- Construction-specific context and reasoning
+- Accurate citations and code references
+
+### Agent System
+- Implements ReAct method for intelligent responses
+- Specialized agents for different document types
+- Continuous learning and improvement
 
 ## Project Structure
 

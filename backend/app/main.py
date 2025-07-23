@@ -1,3 +1,5 @@
+import logging
+from datetime import datetime
 from fastapi import FastAPI, HTTPException, Depends, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -8,6 +10,13 @@ import os
 import uuid
 from pathlib import Path
 from dotenv import load_dotenv
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 # Import services and models
 from app.services.rag_service import RAGService
@@ -79,16 +88,31 @@ async def root():
         "documentation": "/docs"
     }
 
-@app.post("/documents/upload", response_model=Dict[str, str])
+@app.post("/documents/upload", response_model=Dict[str, Any])
 async def upload_document(
     file: UploadFile = File(...),
     title: str = Form(None),
-    source: str = Form("upload")
+    source: str = Form("upload"),
+    document_type: str = Form("other")
 ):
-    """Upload a document to the RAG system"""
+    """
+    Upload and process a document for the RAG system.
+    
+    Supports various document types including PDF, DOCX, and plain text.
+    The document will be processed, chunked, and added to the vector store.
+    """
     try:
+        # Validate file type
+        file_extension = Path(file.filename).suffix.lower()
+        supported_extensions = ['.pdf', '.docx', '.doc', '.txt', '.csv']
+        
+        if file_extension not in supported_extensions:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Unsupported file type. Supported types: {', '.join(supported_extensions)}"
+            )
+        
         # Save the uploaded file
-        file_extension = Path(file.filename).suffix
         file_id = f"{uuid.uuid4()}{file_extension}"
         file_path = os.path.join(UPLOAD_DIR, file_id)
         
@@ -96,37 +120,53 @@ async def upload_document(
             content = await file.read()
             buffer.write(content)
         
-        # Extract text from the file (simplified example)
-        # In a real app, you'd use PyPDF2, docx2txt, etc. based on file type
-        text_content = f"Content from {file.filename}"  # Replace with actual extraction
-        
-        # Add to RAG system
+        # Prepare metadata
         metadata = {
             "title": title or file.filename,
             "source": source,
-            "file_path": file_path,
-            "file_name": file.filename,
-            "content_type": file.content_type
+            "document_type": document_type,
+            "original_filename": file.filename,
+            "content_type": file.content_type,
+            "upload_timestamp": datetime.utcnow().isoformat()
         }
         
-        doc_id = await rag_service.add_document(text_content, metadata)
+        # Process and add document to the vector store
+        chunks = await rag_service.add_document(file_path, metadata)
         
-        # Save to database (simplified)
+        if not chunks:
+            raise HTTPException(
+                status_code=400,
+                detail="Failed to process document or extract meaningful content"
+            )
+        
+        # Save document metadata to database
         db = next(get_db())
         db_doc = Document(
             title=title or file.filename,
-            content=text_content[:1000],  # Store first 1000 chars in DB
+            content=f"Processed document with {len(chunks)} chunks",
             doc_metadata=metadata,
-            source=source
+            source=source,
+            document_type=document_type
         )
         db.add(db_doc)
         db.commit()
         db.refresh(db_doc)
         
-        return {"message": "Document uploaded successfully", "document_id": doc_id}
+        return {
+            "message": "Document processed and added to vector store",
+            "document_id": str(db_doc.id),
+            "chunks_processed": len(chunks),
+            "metadata": metadata
+        }
     
+    except HTTPException:
+        raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error(f"Error processing document: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to process document: {str(e)}"
+        )
 
 @app.post("/query", response_model=QueryResponse)
 async def query_documents(request: QueryRequest):
@@ -138,7 +178,7 @@ async def query_documents(request: QueryRequest):
         documents = await rag_service.query(request.query)
         
         # Generate response using the query and retrieved documents
-        answer = await rag_service.generate_response(request.query, documents)
+        response = await rag_service.generate_response(request.query, documents)
         
         # Format response
         formatted_docs = [
@@ -150,6 +190,9 @@ async def query_documents(request: QueryRequest):
             )
             for doc in documents
         ]
+        
+        # Extract the answer from the response
+        answer = response.get('answer', "I couldn't generate a response for that query.")
         
         return QueryResponse(answer=answer, documents=formatted_docs)
     
@@ -168,7 +211,7 @@ async def list_documents(limit: int = 10, offset: int = 0):
             DocumentResponse(
                 id=str(doc.id),
                 content=doc.content,
-                metadata=doc.metadata or {}
+                metadata=doc.doc_metadata or {}
             )
             for doc in documents
         ]

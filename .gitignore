@@ -30,6 +30,12 @@ ENV/
 *.sqlite3
 chroma_db/
 
+# Uploads - exclude large files
+backend/uploads/
+backend/test_docs/
+backend/test_*.txt
+backend/tests/test_*.txt
+
 # IDE
 .vscode/
 .idea/
@@ -70,3 +76,14 @@ yarn-error.log*
 .DS_Store
 .AppleDouble
 .LSOverride
+
+# Large files
+*.pdf
+*.zip
+*.tar.gz
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.bmp
+*.tiff

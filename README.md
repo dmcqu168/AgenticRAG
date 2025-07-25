@@ -1,13 +1,15 @@
-# Construction Fire Safety Assistant
+# NYC Construction Fire Safety Assistant
+
+> **Note**: This project is based on the [Agentic RAG Template](https://github.com/your-username/agentic-rag-template) repository, which provides the foundational architecture for building RAG applications.
 
 An agentic RAG application designed to help construction fire safety managers maintain compliance and safety on construction sites. This intelligent assistant combines Retrieval-Augmented Generation (RAG) with AI agents using the ReAct method to provide expert fire safety guidance.
 
 ## 🚀 Core Purpose
 
-The app helps construction managers ensure fire safety compliance by:
-- Retrieving information from a comprehensive database of fire safety documents
-- Generating intelligent responses using AI with construction fire safety expertise
-- Providing real-time access to critical safety information on construction sites
+This application was specifically developed to address the unique fire safety challenges in New York City construction sites. It helps construction managers ensure fire safety compliance by:
+- Retrieving information from a comprehensive database of fire safety documents including NYC Fire Code, Building Code, and OSHA regulations
+- Generating intelligent, context-aware responses using AI with specialized construction fire safety expertise
+- Providing real-time access to critical safety information directly on construction sites via mobile devices
 
 ## 🔑 Key Capabilities
 
@@ -48,30 +50,47 @@ The app helps construction managers ensure fire safety compliance by:
 
 ```
 AgenticRAG/
-├── app/                    # React Native mobile app
-├── backend/                # FastAPI backend server
-│   ├── app/               
-│   │   ├── models/        # Database models
+├── AgenticRAGApp/         # React Native mobile app
+│   ├── src/
+│   │   ├── components/    # Reusable UI components
+│   │   ├── screens/       # App screens
+│   │   ├── services/      # API services
+│   │   └── utils/         # Utility functions
+│   └── App.tsx            # Main app component
+├── backend/               # FastAPI backend server
+│   ├── app/
+│   │   ├── api/           # API endpoints
+│   │   ├── core/          # Core functionality
+│   │   ├── db/            # Database models and setup
 │   │   └── services/      # Business logic
-│   ├── config.py          # Configuration settings
-│   └── main.py            # FastAPI application
-└── README.md              # This file
+│   ├── migrations/        # Database migrations
+│   ├── tests/             # Test files
+│   └── main.py            # FastAPI application entry point
+├── .gitignore            # Git ignore file
+└── README.md             # This file
 ```
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js 16+ and npm/yarn
-- Python 3.8+
+- Node.js 18+ and npm/yarn
+- Python 3.10+
 - iOS/Android development environment (for mobile app)
+- ChromaDB for vector storage
+- SQLite (for metadata storage)
 
 ### Installation
 
 1. **Clone the repository**
    ```bash
-   git clone <repository-url>
+   # Clone this repository
+   git clone https://github.com/dmcqu168/AgenticRAG.git
    cd AgenticRAG
+   
+   # Or if you want to start from the original template:
+   # git clone https://github.com/your-username/agentic-rag-template.git AgenticRAG
+   # cd AgenticRAG
    ```
 
 2. **Set up the backend**
@@ -79,16 +98,30 @@ AgenticRAG/
    cd backend
    python -m venv venv
    source venv/bin/activate  # On Windows: venv\Scripts\activate
-   pip install -r requirements-core.txt
-   python init_db.py
+   
+   # Install dependencies
+   pip install -r requirements.txt
+   pip install -r requirements-docs.txt  # For development
+   
+   # Set up the database
+   alembic upgrade head
+   
+   # Initialize the vector database
+   python -c "from app.services.rag_service import RAGService; RAGService()"
    ```
 
 3. **Set up the mobile app**
    ```bash
-   cd ../app
+   cd ../AgenticRAGApp
+   
+   # Install dependencies
    npm install
+   
    # For iOS
    cd ios && pod install && cd ..
+   
+   # For Android
+   # No additional setup required for Android
    ```
 
 ## Running the Application

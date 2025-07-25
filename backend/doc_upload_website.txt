@@ -1,0 +1,11 @@
+Document Upload and Query Interface:
+http://localhost:8000/docs#/default/query_documents_query_post
+
+This is the Swagger/OpenAPI documentation interface for the backend API. You can use it to:
+1. Upload documents
+2. Query the document database
+3. Test API endpoints
+
+Note: The server must be running locally for this link to work. Start the server with:
+cd backend
+uvicorn app.main:app --reload

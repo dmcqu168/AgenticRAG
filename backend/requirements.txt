@@ -9,9 +9,19 @@ pydantic==2.5.2
 pydantic-settings==2.1.0
 chromadb==0.4.22
 sentence-transformers==2.2.2
-pytesseract==0.3.10
-pdf2image==1.17.0
-unstructured==0.10.30
-python-multipart==0.0.6
-python-jose[cryptography]==3.3.0
-passlib[bcrypt]==1.7.4
+
+# OCR and Image Processing
+pytesseract>=0.3.10
+pdf2image>=1.16.0
+opencv-python-headless>=4.8.0  # Headless version of OpenCV
+Pillow>=10.0.0  # Python Imaging Library
+numpy>=1.24.0  # Required for OpenCV and other numerical operations
+pdfminer.six>=20221105  # For advanced PDF text extraction
+python-docx>=1.0.0  # For DOCX processing
+docx2txt>=0.8  # For better DOCX text extraction
+pandas>=2.0.0  # For CSV and table processing
+PyMuPDF>=1.26.0  # For advanced PDF processing and image extraction
+
+# Tesseract OCR (system package) should be installed separately:
+# On macOS: brew install tesseract tesseract-lang
+# On Ubuntu: sudo apt-get install tesseract-ocr tesseract-ocr-eng
